@@ -68,6 +68,8 @@ export function diff(parentDom, newVNode, oldVNode) {
       oldVNode || {},
     )
   }
+
+  if (options.diffed) options.diffed(newVNode)
 }
 
 function diffChildren(parentDom, newChildren, newVNode, oldVNode) {

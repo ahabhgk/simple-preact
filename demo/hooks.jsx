@@ -13,6 +13,14 @@ function Counter() {
   const inc = useCallback(() => setCount(count + 1), [count])
   const dec = useCallback(() => setCount(count - 1), [count])
 
+  useEffect(() => {
+    console.log('Counter: fake mount effect')
+  }, [])
+
+  useEffect(() => {
+    console.log(`Counter: ${count} change effect`)
+  }, [count])
+
   return (
     <div>
       <Displayer num={count} />

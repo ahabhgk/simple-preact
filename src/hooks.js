@@ -1,5 +1,4 @@
 import { options } from './options'
-import { call } from 'function-bind'
 
 let currentComponent
 let currentIndex
@@ -19,8 +18,24 @@ options.render = function renderWithHooks(vnode) {
   }
 }
 
+const afterPaint = requestAnimationFrame
+const originalDiffed = options.diffed
+options.diffed = function invokeEffectOnDiffed(vnode) {
+  if (originalDiffed) originalDiffed(vnode)
+
+  const component = vnode.component
+  if (component && component.hooks && component.hooks.pendingEffects.length) {
+    const { hooks } = component
+    afterPaint(() => {
+      hooks.pendingEffects.forEach(invokeCleanup)
+      hooks.pendingEffects.forEach(invokeEffect)
+      hooks.pendingEffects = []
+    })
+  }
+}
+
 const originalUnmount = options.unmount
-options.unmount = function hooksCleanupOnUnmount(vnode) {
+options.unmount = function invokeCleanupOnUnmount(vnode) {
   if (originalUnmount) originalUnmount(vnode)
 
   const component = vnode.component
@@ -82,7 +97,7 @@ export function useState(initialState) {
 export function useEffect(effect, args) {
   const hookState = getHookState(currentIndex++)
   if (argsChanged(hookState.args, args)) {
-    hookState.effect = cb
+    hookState.effect = effect
     hookState.args = args
     currentComponent.hooks.pendingEffects.push(hookState)
   }
