@@ -38,6 +38,8 @@ class Counter extends Component {
     this.state = {
       count: 0
     }
+    this.inc = this.inc.bind(this)
+    this.dec = this.dec.bind(this)
   }
 
   componentWillMount() {
@@ -60,11 +62,11 @@ class Counter extends Component {
     console.log('Counter: will unmount')
   }
 
-  inc = () => {
+  inc() {
     this.setState({ count: this.state.count + 1 })
   }
 
-  dec = () => {
+  dec() {
     this.setState({ count: this.state.count - 1 })
   }
 

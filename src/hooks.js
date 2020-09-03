@@ -119,11 +119,13 @@ export function useMemo(factory, args) {
 }
 
 export function useCallback(callback, args) {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => callback, args)
 }
 
 export function useRef(initialValue) {
-  return useMemo({ current: initialValue }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => ({ current: initialValue }), [])
 }
 
 function invokeCleanup(effectState) {
