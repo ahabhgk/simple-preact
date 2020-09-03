@@ -1,5 +1,5 @@
-import { commitQueue } from './commit.js'
-import { options } from './options.js'
+import { options } from './options'
+import { Component } from './component'
 
 export function diff(parentDom, newVNode, oldVNode) {
   const { type } = newVNode
@@ -14,7 +14,7 @@ export function diff(parentDom, newVNode, oldVNode) {
         component = newVNode.component = new type(newVNode.props)
       } else {
         component = newVNode.component = new Component(newVNode.props)
-        newVNode.render = type
+        component.render = type
       }
       isNew = true
       component.renderCallbacks = []
@@ -81,7 +81,7 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
     newVNode.dom = oldVNode.dom
   }
   for (; i < oldChildren.length; i++) {
-    umount(oldChildren[i])
+    unmount(oldChildren[i])
   }
 }
 
@@ -145,15 +145,17 @@ function eventProxy(dom, e) {
 	dom.listeners[e.type](options.event ? options.event(e) : e)
 }
 
-function umount(parentDom, vnode) {
+function unmount(parentDom, vnode) {
+  if (options.unmount) options.unmount(vnode)
+
   let component = vnode.component
   if (component != null) {
-    if (component.componentWillUmmount) {
-      component.componentWillUmmount()
+    if (component.componentWillUnmount) {
+      component.componentWillUnmount()
     }
   }
   for (let i = 0; i < vnode.props.children.length; i++) {
-    if (vnode.dom != null) umount(vnode.dom, vnode.props.children[i])
+    if (vnode.dom != null) unmount(vnode.dom, vnode.props.children[i])
   }
   vnode.parentDom = null
   if (vnode.dom != null) parentDom.removeChild(vnode.dom)

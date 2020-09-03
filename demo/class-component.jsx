@@ -19,8 +19,8 @@ class Displayer extends Component {
     console.log('Displayer: did update')
   }
 
-  componentWillUmount() {
-    console.log('Displayer: will umount')
+  componentWillUnmount() {
+    console.log('Displayer: will unmount')
   }
 
   render() {
@@ -56,8 +56,8 @@ class Counter extends Component {
     console.log('Counter: did update')
   }
 
-  componentWillUmount() {
-    console.log('Counter: will umount')
+  componentWillUnmount() {
+    console.log('Counter: will unmount')
   }
 
   inc = () => {
@@ -96,13 +96,13 @@ class App extends Component {
     console.log('App: did update')
   }
 
-  componentWillUmount() {
-    console.log('App: will umount')
+  componentWillUnmount() {
+    console.log('App: will unmount')
   }
   render() {
     return (
       <div>
-        <h1>Simple Preact</h1>
+        <h1>Simple Preact: Class Component</h1>
         <Counter />
       </div>
     )

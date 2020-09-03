@@ -1,5 +1,4 @@
-import { diff } from './diff.js'
-import { commitQueue } from './commit.js'
+import { diff } from './diff'
 
 export class Component {
   constructor(props) {
@@ -7,6 +6,7 @@ export class Component {
     this.state = {}
     this.newState = null
     this.vnode = null
+    this.hooks = null
   }
 
   setState(updater, cb) {
@@ -31,7 +31,6 @@ function renderComponent(component) {
   let vnode = component.vnode
   let parentDom = vnode.parentDom
   diff(parentDom, vnode, { ...vnode })
-  // commit(commitQueue, vnode)
 }
 
 const rerenderQueue = []

@@ -1,11 +1,25 @@
-import { render } from './render.js'
-import { Component } from './component.js'
-import { createVNode } from './vnode.js'
+import { render } from './render'
+import { Component } from './component'
+import { createVNode } from './vnode'
+import {
+  useState,
+  useReducer,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from './hooks'
 
 const React = {
   render,
   Component,
   createElement: createVNode,
+  useState,
+  useReducer,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
 }
 
 export default React
