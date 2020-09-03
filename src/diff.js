@@ -28,18 +28,10 @@ export function diff(parentDom, newVNode, oldVNode) {
       if (component.componentWillMount != null) {
         component.componentWillMount()
       }
-      if (component.componentDidMount != null) {
-        component.renderCallbacks.push(component.componentDidMount)
-      }
     } else {
       // shouldComponentUpdate
       if (component.componentWillUpdate != null) {
         component.componentWillUpdate(newProps, newState)
-      }
-      if (component.componentDidUpdate != null) {
-        component.renderCallbacks.push(() => {
-          component.componentDidUpdate(oldProps, oldState)
-        })
       }
     }
 
@@ -60,8 +52,14 @@ export function diff(parentDom, newVNode, oldVNode) {
       oldVNode || {},
     )
 
-    if (component.renderCallbacks.length) {
-      commitQueue.push(component)
+    if (isNew) {
+      if (component.componentDidMount != null) {
+        component.componentDidMount()
+      }
+    } else {
+      if (component.componentDidUpdate != null) {
+        component.componentDidUpdate(oldProps, oldState)
+      }
     }
   } else {
     diffElementNodes(
@@ -125,7 +123,6 @@ function diffDOMProps(dom, newProps, oldProps) {
 }
 
 function setProperty(dom, propName, newValue, oldValue) {
-  // if (propName === 'className') propName = 'class'
   if (propName[0] === 'o' && propName[1] === 'n') {
     const eventType = propName.toLowerCase().slice(2)
 

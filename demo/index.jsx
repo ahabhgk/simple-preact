@@ -3,8 +3,27 @@ import React from '../src/index.js'
 const { render, Component } = React
 
 class Displayer extends Component {
+  componentWillMount() {
+    console.log('Displayer: will mount')
+  }
+
+  componentDidMount() {
+    console.log('Displayer: did mount')
+  }
+
+  componentWillUpdate() {
+    console.log('Displayer: will update')
+  }
+
+  componentDidUpdate() {
+    console.log('Displayer: did update')
+  }
+
+  componentWillUmount() {
+    console.log('Displayer: will umount')
+  }
+
   render() {
-    console.log(this.props)
     return (
       <div className="displayer">
         {this.props.children[0]}
@@ -19,6 +38,26 @@ class Counter extends Component {
     this.state = {
       count: 0
     }
+  }
+
+  componentWillMount() {
+    console.log('Counter: will mount')
+  }
+
+  componentDidMount() {
+    console.log('Counter: did mount')
+  }
+
+  componentWillUpdate() {
+    console.log('Counter: will update')
+  }
+
+  componentDidUpdate() {
+    console.log('Counter: did update')
+  }
+
+  componentWillUmount() {
+    console.log('Counter: will umount')
   }
 
   inc = () => {
@@ -41,6 +80,25 @@ class Counter extends Component {
 }
 
 class App extends Component {
+  componentWillMount() {
+    console.log('App: will mount')
+  }
+
+  componentDidMount() {
+    console.log('App: did mount')
+  }
+
+  componentWillUpdate() {
+    console.log('App: will update')
+  }
+
+  componentDidUpdate() {
+    console.log('App: did update')
+  }
+
+  componentWillUmount() {
+    console.log('App: will umount')
+  }
   render() {
     return (
       <div>
