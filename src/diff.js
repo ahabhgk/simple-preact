@@ -1,173 +1,181 @@
-import { options } from './options'
-import { Component, Fragment } from './component'
-import { createVNode } from './vnode'
+import { options } from './options';
+import { Component, Fragment } from './component';
+import { createVNode } from './vnode';
 
 export function diff(parentDom, newVNode, oldVNode) {
-  const { type } = newVNode
+  const { type } = newVNode;
   if (typeof type === 'function') {
-    let isNew, component, oldProps, oldState, newState
-    let newProps = newVNode.props
+    let isNew; let component; let oldProps; let oldState; let
+      newState;
+    const newProps = newVNode.props;
 
     if (oldVNode.component) {
-      component = newVNode.component = oldVNode.component
+      component = newVNode.component = oldVNode.component;
     } else {
       if ('prototype' in type && type.prototype.render) {
-        component = newVNode.component = new type(newVNode.props)
+        component = newVNode.component = new type(newVNode.props);
       } else {
-        component = newVNode.component = new Component(newVNode.props)
-        component.render = type
+        component = newVNode.component = new Component(newVNode.props);
+        component.render = type;
       }
-      isNew = true
-      component.renderCallbacks = []
+      isNew = true;
+      component.renderCallbacks = [];
     }
 
-    oldState = component.state
-    oldProps = component.props
-    newState = component.newState === null ? oldState : component.newState
+    oldState = component.state;
+    oldProps = component.props;
+    newState = component.newState === null ? oldState : component.newState;
 
     if (isNew) {
       if (component.componentWillMount != null) {
-        component.componentWillMount()
+        component.componentWillMount();
       }
     } else {
       // shouldComponentUpdate
       if (component.componentWillUpdate != null) {
-        component.componentWillUpdate(newProps, newState)
+        component.componentWillUpdate(newProps, newState);
       }
     }
 
-    newVNode.parentDom = parentDom
-    component.vnode = newVNode
+    newVNode.parentDom = parentDom;
+    component.vnode = newVNode;
 
-    if (options.render) options.render(newVNode)
+    if (options.render) options.render(newVNode);
 
-    component.state = newState
-    component.props = newProps
-    const renderResult = component.render(newProps)
-    const newChildren = Array.isArray(renderResult) ? renderResult : [renderResult]
+    component.state = newState;
+    component.props = newProps;
+    const renderResult = component.render(newProps);
+    const newChildren = Array.isArray(renderResult) ? renderResult : [renderResult];
 
     diffChildren(
       parentDom,
       newChildren,
-      newVNode || {},
-      oldVNode || {},
-    )
+      newVNode ?? {},
+      oldVNode ?? {},
+    );
 
     if (isNew) {
       if (component.componentDidMount != null) {
-        component.componentDidMount()
+        component.componentDidMount();
       }
-    } else {
-      if (component.componentDidUpdate != null) {
-        component.componentDidUpdate(oldProps, oldState)
-      }
+    } else if (component.componentDidUpdate != null) {
+      component.componentDidUpdate(oldProps, oldState);
     }
   } else {
     diffElementNodes(
       parentDom,
-      newVNode || {},
-      oldVNode || {},
-    )
+      newVNode ?? {},
+      oldVNode ?? {},
+    );
   }
 
-  if (options.diffed) options.diffed(newVNode)
+  if (options.diffed) options.diffed(newVNode);
 }
 
 function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
-  newVNode.children = []
-  let oldChildren = oldVNode.children ?? []
-  let i
+  newVNode.children = [];
+  const oldChildren = oldVNode.children ?? [];
+  // oldChildren = Array.isArray(oldChildren) ? oldChildren : [oldChildren]
+  let i;
   for (i = 0; i < newChildren.length; i++) {
-    let newChild = newChildren[i]
-    let oldChild = oldChildren[i]
+    let newChild = newChildren[i] ?? {};
+    const oldChild = oldChildren[i] ?? {};
 
     newChild = Array.isArray(newChild)
       ? createVNode(Fragment, null, newChild)
-      : newChild
-// console.log(newChild)
-    newVNode.children[i] = newChild
+      : newChild;
 
-    diff(parentDom, newChild, oldChild || {})
-    newVNode.dom = oldVNode.dom
+    newVNode.children[i] = newChild;
+
+    diff(parentDom, newChild, oldChild);
+
+    if (newChild.dom !== oldChild.dom && newChild.dom != null) {
+      parentDom.appendChild(newChild.dom);
+    }
   }
-  for (; i < oldChildren.length; i++) {
-    unmount(oldChildren[i])
+
+  for (i; i < oldChildren.length; i++) {
+    unmount(oldChildren[i], false);
   }
 }
 
 function diffElementNodes(parentDom, newVNode, oldVNode) {
-  let oldProps = oldVNode.props || {}
-  let newProps = newVNode.props
-  let dom = oldVNode.dom
+  const oldProps = oldVNode.props ?? {};
+  const newProps = newVNode.props ?? {};
+  let { dom } = oldVNode;
 
-  if (dom == null) {
+  if (dom == null && newVNode.type) {
     if (newVNode.type == 'TEXT') {
-      dom = document.createTextNode('')
+      dom = document.createTextNode('');
     } else {
-      dom = document.createElement(newVNode.type)
+      dom = document.createElement(newVNode.type);
     }
   }
 
-  const newChildren = newProps.children
-  diffDOMProps(dom, newProps, oldProps)
-  diffChildren(dom, Array.isArray(newChildren) ? newChildren : [newChildren], newVNode, oldVNode)
-  newVNode.dom = dom
-
-  if (oldVNode.dom == null) {
-    parentDom.appendChild(dom)
-  }
+  const newChildren = newProps.children ?? [];
+  diffDOMProps(dom, newProps, oldProps);
+  diffChildren(dom, Array.isArray(newChildren) ? newChildren : [newChildren], newVNode, oldVNode);
+  newVNode.dom = dom;
 }
 
 function diffDOMProps(dom, newProps, oldProps) {
   // remove old props
-  for (let propName in oldProps) {
+  for (const propName in oldProps) {
     if (propName !== 'children' && propName !== 'key' && !(propName in newProps)) {
-			setProperty(dom, propName, null, oldProps[propName])
-		}
+      setProperty(dom, propName, null, oldProps[propName]);
+    }
   }
   // update old props
-  for (let propName in newProps) {
+  for (const propName in newProps) {
     if (propName !== 'children' && propName !== 'key' && oldProps[propName] !== newProps[propName]) {
-      setProperty(dom, propName, newProps[propName], oldProps[propName])
+      setProperty(dom, propName, newProps[propName], oldProps[propName]);
     }
   }
 }
 
 function setProperty(dom, propName, newValue, oldValue) {
   if (propName[0] === 'o' && propName[1] === 'n') {
-    const eventType = propName.toLowerCase().slice(2)
+    const eventType = propName.toLowerCase().slice(2);
 
-    if (!dom.listeners) dom.listeners = {}
-    dom.listeners[eventType] = newValue
+    if (!dom.listeners) dom.listeners = {};
+    dom.listeners[eventType] = newValue;
 
     if (newValue) {
-			if (!oldValue) {
-        dom.addEventListener(eventType, (e) => eventProxy(dom, e))
+      if (!oldValue) {
+        dom.addEventListener(eventType, (e) => eventProxy(dom, e));
       }
-		} else {
-			dom.removeEventListener(eventType, eventProxy)
-		}
+    } else {
+      dom.removeEventListener(eventType, eventProxy);
+    }
   } else {
-    dom[propName] = newValue === null ? '' : newValue
+    dom[propName] = newValue === null ? '' : newValue;
   }
 }
 
 function eventProxy(dom, e) {
-	dom.listeners[e.type](options.event ? options.event(e) : e)
+  dom.listeners[e.type](options.event ? options.event(e) : e);
 }
 
-function unmount(parentDom, vnode) {
-  if (options.unmount) options.unmount(vnode)
-
-  let component = vnode.component
+function unmount(vnode, skip) {
+  if (options.unmount) options.unmount(vnode);
+  debugger;
+  const { component } = vnode;
   if (component != null) {
     if (component.componentWillUnmount) {
-      component.componentWillUnmount()
+      component.componentWillUnmount();
     }
   }
-  for (let i = 0; i < vnode.children.length; i++) {
-    if (vnode.dom != null) unmount(vnode.dom, vnode.children[i])
+
+  let dom;
+  if (!skip && typeof vnode.type !== 'function') {
+    skip = (dom = vnode.dom) != null;
   }
-  vnode.parentDom = null
-  if (vnode.dom != null) parentDom.removeChild(vnode.dom)
+
+  for (let i = 0; i < vnode.children.length; i++) {
+    if (vnode.children[i] != null) unmount(vnode.children[i], skip);
+  }
+
+  vnode.dom = null;
+  vnode.parentDom = null;
+  if (dom != null) dom.parentNode.removeChild(dom);
 }

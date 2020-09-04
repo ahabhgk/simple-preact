@@ -1,5 +1,5 @@
-import { diff } from './diff'
+import { diff } from './diff';
 
 export function render(vnode, parentDom) {
-  diff(parentDom, vnode, {})
+  diff(parentDom, vnode, {});
 }

@@ -1,6 +1,6 @@
-import { render } from './render'
-import { Component, Fragment } from './component'
-import { createVNode } from './vnode'
+import { render } from './render';
+import { Component, Fragment } from './component';
+import { createVNode } from './vnode';
 import {
   useState,
   useReducer,
@@ -8,7 +8,7 @@ import {
   useMemo,
   useCallback,
   useRef,
-} from './hooks'
+} from './hooks';
 
 const React = {
   render,
@@ -21,6 +21,6 @@ const React = {
   useMemo,
   useCallback,
   useRef,
-}
+};
 
-export default React
+export default React;

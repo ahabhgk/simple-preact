@@ -1,4 +1,5 @@
 import React from '../src'
+import { useState } from '../src/hooks'
 
 const { Fragment, render } = React
 
@@ -18,10 +19,12 @@ function Person({ name, age }) {
 }
 
 function PersonList({ children }) {
+  const [show, setShow] = useState(true)
   return (
     <>
       <h3>Person infos:</h3>
-      <ul>{children}</ul>
+      <button onClick={() => setShow(!show)}>Show?</button>
+      {show ? <ul>{children}</ul> : null}
     </>
   )
 }

@@ -24,7 +24,7 @@ class Displayer extends Component {
   }
 
   render() {
-    console.log(this.props)
+    console.log(this)
     return (
       <div className="displayer">
         {this.props.children}
@@ -73,16 +73,24 @@ class Counter extends Component {
 
   render() {
     return (
-      <div>
+      <>
         <Displayer>{this.state.count}</Displayer>
         <button onClick={this.inc}> + </button>
         <button onClick={this.dec}> - </button>
-      </div>
+      </>
     )
   }
 }
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      show: true,
+    }
+    this.handleShowCounter = this.handleShowCounter.bind(this)
+  }
+
   componentWillMount() {
     console.log('App: will mount')
   }
@@ -102,11 +110,18 @@ class App extends Component {
   componentWillUnmount() {
     console.log('App: will unmount')
   }
+
+  handleShowCounter() {
+    this.setState({ show: !this.state.show })
+  }
+
   render() {
+    console.log(this)
     return (
       <div>
         <h1>Simple Preact: Class Component</h1>
-        <Counter />
+        <button onClick={this.handleShowCounter}>Show?</button>
+        {this.state.show ? <Counter /> : null}
       </div>
     )
   }

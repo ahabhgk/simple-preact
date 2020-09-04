@@ -1,58 +1,58 @@
-import { options } from './options'
+import { options } from './options';
 
-let currentComponent
-let currentIndex
+let currentComponent;
+let currentIndex;
 
-const originalRender = options.render
+const originalRender = options.render;
 options.render = function renderWithHooks(vnode) {
-  if (originalRender) originalRender(vnode)
+  if (originalRender) originalRender(vnode);
 
-  currentComponent = vnode.component
-  currentIndex = 0
+  currentComponent = vnode.component;
+  currentIndex = 0;
 
-  const hooks = currentComponent.hooks
+  const { hooks } = currentComponent;
   if (hooks) {
-    hooks.pendingEffects.forEach(invokeCleanup)
-    hooks.pendingEffects.forEach(invokeEffect)
-    hooks.pendingEffects = []
+    hooks.pendingEffects.forEach(invokeCleanup);
+    hooks.pendingEffects.forEach(invokeEffect);
+    hooks.pendingEffects = [];
   }
-}
+};
 
-const afterPaint = requestAnimationFrame
-const originalDiffed = options.diffed
+const afterPaint = requestAnimationFrame;
+const originalDiffed = options.diffed;
 options.diffed = function invokeEffectOnDiffed(vnode) {
-  if (originalDiffed) originalDiffed(vnode)
+  if (originalDiffed) originalDiffed(vnode);
 
-  const component = vnode.component
+  const { component } = vnode;
   if (component && component.hooks && component.hooks.pendingEffects.length) {
-    const { hooks } = component
+    const { hooks } = component;
     afterPaint(() => {
-      hooks.pendingEffects.forEach(invokeCleanup)
-      hooks.pendingEffects.forEach(invokeEffect)
-      hooks.pendingEffects = []
-    })
+      hooks.pendingEffects.forEach(invokeCleanup);
+      hooks.pendingEffects.forEach(invokeEffect);
+      hooks.pendingEffects = [];
+    });
   }
-}
+};
 
-const originalUnmount = options.unmount
+const originalUnmount = options.unmount;
 options.unmount = function invokeCleanupOnUnmount(vnode) {
-  if (originalUnmount) originalUnmount(vnode)
+  if (originalUnmount) originalUnmount(vnode);
 
-  const component = vnode.component
+  const { component } = vnode;
   if (component && component.hooks) {
-    component.hooks.list.forEach(invokeCleanup)
+    component.hooks.list.forEach(invokeCleanup);
   }
-}
+};
 
 function getHookState(index) {
   const hooks = currentComponent.hooks || (currentComponent.hooks = {
     list: [],
     pendingEffects: [],
-  })
+  });
   if (index >= hooks.list.length) {
-    hooks.list.push({})
+    hooks.list.push({});
   }
-  return hooks.list[index]
+  return hooks.list[index];
 }
 
 /**
@@ -63,28 +63,28 @@ function getHookState(index) {
  * }
  */
 export function useReducer(reducer, initialState, init) {
-  const hookState = getHookState(currentIndex++)
+  const hookState = getHookState(currentIndex++);
   if (!hookState.component) {
-    hookState.component = currentComponent
+    hookState.component = currentComponent;
     hookState.value = [
       init ? init(initialState) : initialState,
       (action) => {
-        const nextState = reducer(hookState.value[0], action)
+        const nextState = reducer(hookState.value[0], action);
         if (hookState.value[0] !== nextState) {
-          hookState.value = [nextState, hookState.value[1]]
-          hookState.component.setState({})
+          hookState.value = [nextState, hookState.value[1]];
+          hookState.component.setState({});
         }
-      }
-    ]
+      },
+    ];
   }
-  return hookState.value
+  return hookState.value;
 }
 
 export function useState(initialState) {
   return useReducer(
-    (arg, f) => typeof f === 'function' ? f(arg) : f,
+    (arg, f) => (typeof f === 'function' ? f(arg) : f),
     typeof initialState === 'function' ? initialState() : initialState,
-  )
+  );
 }
 
 /**
@@ -95,11 +95,11 @@ export function useState(initialState) {
  * }
  */
 export function useEffect(effect, args) {
-  const hookState = getHookState(currentIndex++)
+  const hookState = getHookState(currentIndex++);
   if (argsChanged(hookState.args, args)) {
-    hookState.effect = effect
-    hookState.args = args
-    currentComponent.hooks.pendingEffects.push(hookState)
+    hookState.effect = effect;
+    hookState.args = args;
+    currentComponent.hooks.pendingEffects.push(hookState);
   }
 }
 
@@ -110,32 +110,32 @@ export function useEffect(effect, args) {
  * }
  */
 export function useMemo(factory, args) {
-  const hookState = getHookState(currentIndex++)
+  const hookState = getHookState(currentIndex++);
   if (argsChanged(hookState.args, args)) {
-    hookState.args = args
-    hookState.value = factory()
+    hookState.args = args;
+    hookState.value = factory();
   }
-  return hookState.value
+  return hookState.value;
 }
 
 export function useCallback(callback, args) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => callback, args)
+  return useMemo(() => callback, args);
 }
 
 export function useRef(initialValue) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => ({ current: initialValue }), [])
+  return useMemo(() => ({ current: initialValue }), []);
 }
 
 function invokeCleanup(effectState) {
-  if (typeof effectState.cleanup === 'function') effectState.cleanup()
+  if (typeof effectState.cleanup === 'function') effectState.cleanup();
 }
 
 function invokeEffect(effectState) {
-  effectState.cleanup = effectState.effect()
+  effectState.cleanup = effectState.effect();
 }
 
 function argsChanged(oldArgs, newArgs) {
-  return !oldArgs || newArgs.some((arg, index) => arg !== oldArgs[index])
+  return !oldArgs || newArgs.some((arg, index) => arg !== oldArgs[index]);
 }

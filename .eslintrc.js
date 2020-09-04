@@ -1,18 +1,24 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "es2021": true
+  env: {
+    browser: true,
+    es2020: true,
   },
-  "extends": [
-    "plugin:react-hooks/recommended",
+  extends: [
+    'plugin:react/recommended',
+    'airbnb',
   ],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true,
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
     },
-    "ecmaVersion": 12,
-    "sourceType": "module",
+    ecmaVersion: 2020,
+    sourceType: 'module',
   },
-  "rules": {
-  }
+  plugins: [
+    'react',
+    '@typescript-eslint',
+  ],
+  rules: {
+  },
 };
