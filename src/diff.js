@@ -1,5 +1,6 @@
 import { options } from './options'
-import { Component } from './component'
+import { Component, Fragment } from './component'
+import { createVNode } from './vnode'
 
 export function diff(parentDom, newVNode, oldVNode) {
   const { type } = newVNode
@@ -73,12 +74,19 @@ export function diff(parentDom, newVNode, oldVNode) {
 }
 
 function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
-  let oldChildren = oldVNode.props?.children ?? {}
+  newVNode.children = []
+  let oldChildren = oldVNode.children ?? []
   let i
   for (i = 0; i < newChildren.length; i++) {
     let newChild = newChildren[i]
     let oldChild = oldChildren[i]
-    newVNode.props.children[i] = newChild
+
+    newChild = Array.isArray(newChild)
+      ? createVNode(Fragment, null, newChild)
+      : newChild
+// console.log(newChild)
+    newVNode.children[i] = newChild
+
     diff(parentDom, newChild, oldChild || {})
     newVNode.dom = oldVNode.dom
   }
@@ -100,8 +108,9 @@ function diffElementNodes(parentDom, newVNode, oldVNode) {
     }
   }
 
+  const newChildren = newProps.children
   diffDOMProps(dom, newProps, oldProps)
-  diffChildren(dom, newVNode.props.children, newVNode, oldVNode)
+  diffChildren(dom, Array.isArray(newChildren) ? newChildren : [newChildren], newVNode, oldVNode)
   newVNode.dom = dom
 
   if (oldVNode.dom == null) {
@@ -156,8 +165,8 @@ function unmount(parentDom, vnode) {
       component.componentWillUnmount()
     }
   }
-  for (let i = 0; i < vnode.props.children.length; i++) {
-    if (vnode.dom != null) unmount(vnode.dom, vnode.props.children[i])
+  for (let i = 0; i < vnode.children.length; i++) {
+    if (vnode.dom != null) unmount(vnode.dom, vnode.children[i])
   }
   vnode.parentDom = null
   if (vnode.dom != null) parentDom.removeChild(vnode.dom)

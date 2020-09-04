@@ -10,6 +10,7 @@
 - [x] useCallback
 - [x] useRef
 - [ ] UseContext
+- [x] Fragment
 - [x] Component Diff
 - [x] HostNode Diff
 - [ ] Key Diff

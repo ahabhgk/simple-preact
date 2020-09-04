@@ -1,5 +1,5 @@
 import { render } from './render'
-import { Component } from './component'
+import { Component, Fragment } from './component'
 import { createVNode } from './vnode'
 import {
   useState,
@@ -13,6 +13,7 @@ import {
 const React = {
   render,
   Component,
+  Fragment,
   createElement: createVNode,
   useState,
   useReducer,

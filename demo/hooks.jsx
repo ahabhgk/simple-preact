@@ -19,6 +19,9 @@ function Counter() {
 
   useEffect(() => {
     console.log(`Counter: ${count} change effect`)
+    return () => {
+      console.log(`Counter: ${count} cleanup effect`)
+    }
   }, [count])
 
   return (

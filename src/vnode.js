@@ -1,28 +1,29 @@
+import { Fragment } from "./component"
+
 export function createVNode(type, props, ...children) {
   return {
     type,
     props: {
       ...props,
-      children: children.map(child =>
-        typeof child === 'object'
-          ? child
-          : createTextElement(child)
-      ),
+      children
+      : children.length === 1
+        ? typeof children[0] === 'object' ? children[0] : createTextVNode(children[0])
+        : children.map(child => typeof child === 'object' ? child : createTextVNode(child)),
     },
     component: null,
     dom: null,
     parentDom: null,
+    children: null,
   }
 }
 
-function createTextElement(value) {
+function createTextVNode(value) {
   return {
     type: 'TEXT',
     props: {
       nodeValue: value,
       children: [],
     },
-    component: null,
     dom: null,
     parentDom: null,
   }

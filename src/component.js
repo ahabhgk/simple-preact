@@ -43,3 +43,7 @@ function enqueueRender(component) {
   rerenderQueue.push(component)
   Promise.resolve().then(process)
 }
+
+export function Fragment(props) {
+  return props.children
+}

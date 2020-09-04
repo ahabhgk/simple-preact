@@ -24,9 +24,10 @@ class Displayer extends Component {
   }
 
   render() {
+    console.log(this.props)
     return (
       <div className="displayer">
-        {this.props.children[0]}
+        {this.props.children}
       </div>
     )
   }
