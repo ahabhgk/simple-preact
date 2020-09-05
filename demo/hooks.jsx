@@ -29,8 +29,8 @@ function Counter() {
   return (
     <div>
       <Displayer num={count} />
-      <button onClick={inc}> + </button>
-      <button onClick={dec}> - </button>
+      <button type="button" onClick={inc}> + </button>
+      <button type="button" onClick={dec}> - </button>
     </div>
   );
 }

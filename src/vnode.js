@@ -1,5 +1,3 @@
-import { Fragment } from './component';
-
 export function createVNode(type, props, ...children) {
   return {
     type,

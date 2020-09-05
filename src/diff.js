@@ -5,8 +5,8 @@ import { createVNode } from './vnode';
 export function diff(parentDom, newVNode, oldVNode) {
   const { type } = newVNode;
   if (typeof type === 'function') {
-    let isNew; let component; let oldProps; let oldState; let
-      newState;
+    let isNew;
+    let component;
     const newProps = newVNode.props;
 
     if (oldVNode.component) {
@@ -22,9 +22,9 @@ export function diff(parentDom, newVNode, oldVNode) {
       component.renderCallbacks = [];
     }
 
-    oldState = component.state;
-    oldProps = component.props;
-    newState = component.newState === null ? oldState : component.newState;
+    const oldState = component.state;
+    const oldProps = component.props;
+    const newState = component.newState === null ? oldState : component.newState;
 
     if (isNew) {
       if (component.componentWillMount != null) {
@@ -120,17 +120,17 @@ function diffElementNodes(parentDom, newVNode, oldVNode) {
 
 function diffDOMProps(dom, newProps, oldProps) {
   // remove old props
-  for (const propName in oldProps) {
+  Object.keys(oldProps).forEach((propName) => {
     if (propName !== 'children' && propName !== 'key' && !(propName in newProps)) {
       setProperty(dom, propName, null, oldProps[propName]);
     }
-  }
+  });
   // update old props
-  for (const propName in newProps) {
+  Object.keys(newProps).forEach((propName) => {
     if (propName !== 'children' && propName !== 'key' && oldProps[propName] !== newProps[propName]) {
       setProperty(dom, propName, newProps[propName], oldProps[propName]);
     }
-  }
+  });
 }
 
 function setProperty(dom, propName, newValue, oldValue) {
@@ -158,7 +158,6 @@ function eventProxy(dom, e) {
 
 function unmount(vnode, skip) {
   if (options.unmount) options.unmount(vnode);
-  debugger;
   const { component } = vnode;
   if (component != null) {
     if (component.componentWillUnmount) {
