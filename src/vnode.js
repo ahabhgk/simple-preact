@@ -10,6 +10,7 @@ export function createVNode(type, props, ...children) {
     component: null,
     dom: null,
     parentDom: null,
+    parent: null,
     children: null,
   };
 }
@@ -23,5 +24,6 @@ function createTextVNode(value) {
     },
     dom: null,
     parentDom: null,
+    parent: null,
   };
 }

@@ -1,4 +1,6 @@
 import { diff } from './diff';
+import { shallowCompare } from './helpers';
+import { createVNode } from './vnode';
 
 export class Component {
   constructor(props) {
@@ -7,9 +9,10 @@ export class Component {
     this.newState = null;
     this.vnode = null;
     this.hooks = null;
+    // this.context = {};
   }
 
-  setState(updater, cb) {
+  setState(updater) {
     // debugger
     if (this.newState === null || this.newState === this.state) {
       this.newState = { ...this.state };
@@ -21,7 +24,6 @@ export class Component {
       this.newState = Object.assign(this.newState, updater);
     }
     if (this.vnode) {
-      this.renderCallbacks.push(cb);
       enqueueRender(this);
     }
   }
@@ -46,4 +48,16 @@ function enqueueRender(component) {
 
 export function Fragment(props) {
   return props.children;
+}
+
+export function memo(fc, comparer) {
+  if (!comparer) comparer = shallowCompare
+  function Memoed(props) {
+    this.shouldComponentUpdate = function shouldUpdate(nextProps) {
+      // console.log(props, nextProps)
+      return comparer(props, nextProps)
+    }
+    return createVNode(fc, props, props.children)
+  }
+  return Memoed
 }

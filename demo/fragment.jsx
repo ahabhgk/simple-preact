@@ -26,7 +26,7 @@ function PersonList({ children }) {
   const [show, setShow] = useState(true);
   return (
     <>
-      <h3>Person infos:</h3>
+      <h3>Person infos: </h3>
       <button type="button" onClick={() => setShow(!show)}>Show?</button>
       {show ? <ul>{children}</ul> : null}
     </>

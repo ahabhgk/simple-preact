@@ -1,16 +1,17 @@
-let ctxId = 0;
+import { memo } from "./component";
 
-export function createContext(defaultValue) {
-  ctxId += 1;
+export function createContext(initialValue) {
   const context = {
-    id: ctxId,
-    defaultValue,
-    currentValue: defaultValue,
+    currentValue: initialValue,
     Consumer({ children }) {
       return children(context.currentValue);
     },
-    Provider({ value, children }) {
-      return children;
-    },
+    Provider: memo(function Provider({ value, children }) {
+      if (value !== context.currentValue) {
+        context.currentValue = value
+      }
+      return children
+    }),
   };
+  return context
 }

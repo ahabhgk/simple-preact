@@ -1,7 +1,7 @@
 import React from '../src';
 
 const {
-  useState, useEffect, useCallback, render,
+  useState, useEffect, useCallback, render, memo,
 } = React;
 
 function Displayer({ num }) {
@@ -10,10 +10,15 @@ function Displayer({ num }) {
   );
 }
 
+const Btn = memo(({ onClick }) => {
+  console.log('render Btn')
+  return <button type="button" onClick={onClick}>+/-</button>
+})
+
 function Counter() {
   const [count, setCount] = useState(0);
-  const inc = useCallback(() => setCount(count + 1), [count]);
-  const dec = useCallback(() => setCount(count - 1), [count]);
+  const inc = useCallback(() => setCount(c => c + 1), []);
+  const dec = useCallback(() => setCount(c => c - 1), []);
 
   useEffect(() => {
     console.log('Counter: fake mount effect');
@@ -29,8 +34,8 @@ function Counter() {
   return (
     <div>
       <Displayer num={count} />
-      <button type="button" onClick={inc}> + </button>
-      <button type="button" onClick={dec}> - </button>
+      <Btn onClick={inc}> + </Btn>
+      <Btn onClick={dec}> - </Btn>
     </div>
   );
 }

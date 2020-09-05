@@ -24,7 +24,6 @@ class Displayer extends Component {
   }
 
   render() {
-    console.log(this);
     return (
       <div className="displayer">
         {this.props.children}
@@ -116,7 +115,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this);
     return (
       <div>
         <h1>Simple Preact: Class Component</h1>

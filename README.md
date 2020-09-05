@@ -7,7 +7,7 @@
 - [x] Fragment
 - [ ] ErrorBoundary
 - [ ] Suspense
-- [ ] memo/shouldComponentUpdate
+- [x] memo/shouldComponentUpdate
 - [ ] lazy
 - [x] useState
 - [x] useReducer
@@ -15,10 +15,11 @@
 - [x] useMemo
 - [x] useCallback
 - [x] useRef
-- [ ] useContext
-- [ ] createContext
+- [x] useContext
+- [x] createContext
 - [x] Component Diff
 - [x] HostNode Diff
 - [ ] Key Diff
+- [ ] Children
 
 ## Tips

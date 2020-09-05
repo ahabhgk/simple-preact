@@ -19,7 +19,6 @@ export function diff(parentDom, newVNode, oldVNode) {
         component.render = type;
       }
       isNew = true;
-      component.renderCallbacks = [];
     }
 
     const oldState = component.state;
@@ -31,13 +30,24 @@ export function diff(parentDom, newVNode, oldVNode) {
         component.componentWillMount();
       }
     } else {
-      // shouldComponentUpdate
+      if (
+        component.shouldComponentUpdate != null &&
+        component.shouldComponentUpdate(newProps, newState) === false
+      ) {
+        component.state = newState;
+        component.props = newProps;
+        component.vnode = newVNode;
+        newVNode.children = oldVNode.children;
+        newVNode.dom = oldVNode.dom;
+        newVNode.parentDom = oldVNode.parentDom;
+        return;
+      }
       if (component.componentWillUpdate != null) {
         component.componentWillUpdate(newProps, newState);
       }
     }
 
-    newVNode.parentDom = parentDom;
+    newVNode.parentDom = parentDom; // parent.dom 的话 parent 可能是组件，没有 dom
     component.vnode = newVNode;
 
     if (options.render) options.render(newVNode);
@@ -85,6 +95,7 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
       : newChild;
 
     newVNode.children[i] = newChild;
+    newChild.parent = newVNode;
 
     if (newChild == null) {
       unmount(oldChild, false);

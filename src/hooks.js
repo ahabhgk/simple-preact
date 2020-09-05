@@ -139,3 +139,7 @@ function invokeEffect(effectState) {
 function argsChanged(oldArgs, newArgs) {
   return !oldArgs || newArgs.some((arg, index) => arg !== oldArgs[index]);
 }
+
+export function useContext(context) {
+  return context.currentValue
+}
