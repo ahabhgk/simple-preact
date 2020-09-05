@@ -75,10 +75,9 @@ export function diff(parentDom, newVNode, oldVNode) {
 function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
   newVNode.children = [];
   const oldChildren = oldVNode.children ?? [];
-  // oldChildren = Array.isArray(oldChildren) ? oldChildren : [oldChildren]
   let i;
   for (i = 0; i < newChildren.length; i++) {
-    let newChild = newChildren[i] ?? {};
+    let newChild = newChildren[i];
     const oldChild = oldChildren[i] ?? {};
 
     newChild = Array.isArray(newChild)
@@ -87,9 +86,13 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
 
     newVNode.children[i] = newChild;
 
-    diff(parentDom, newChild, oldChild);
+    if (newChild == null) {
+      unmount(oldChild, false);
+    } else {
+      diff(parentDom, newChild, oldChild);
+    }
 
-    if (newChild.dom !== oldChild.dom && newChild.dom != null) {
+    if (newChild && newChild.dom !== oldChild.dom && newChild.dom != null) {
       parentDom.appendChild(newChild.dom);
     }
   }
@@ -112,9 +115,9 @@ function diffElementNodes(parentDom, newVNode, oldVNode) {
     }
   }
 
-  const newChildren = newProps.children ?? [];
+  const newChildren = Array.isArray(newProps.children) ? newProps.children : [newProps.children];
   diffDOMProps(dom, newProps, oldProps);
-  diffChildren(dom, Array.isArray(newChildren) ? newChildren : [newChildren], newVNode, oldVNode);
+  diffChildren(dom, newChildren, newVNode, oldVNode);
   newVNode.dom = dom;
 }
 
@@ -158,6 +161,7 @@ function eventProxy(dom, e) {
 
 function unmount(vnode, skip) {
   if (options.unmount) options.unmount(vnode);
+
   const { component } = vnode;
   if (component != null) {
     if (component.componentWillUnmount) {

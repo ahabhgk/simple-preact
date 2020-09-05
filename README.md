@@ -17,8 +17,8 @@
 - [x] useRef
 - [ ] useContext
 - [ ] createContext
-- [ ] Component Diff
-- [ ] HostNode Diff
+- [x] Component Diff
+- [x] HostNode Diff
 - [ ] Key Diff
 
 ## Tips

@@ -73,11 +73,11 @@ class Counter extends Component {
 
   render() {
     return (
-      <>
+      <div>
         <Displayer>{this.state.count}</Displayer>
         <button type="button" onClick={this.inc}> + </button>
         <button type="button" onClick={this.dec}> - </button>
-      </>
+      </div>
     );
   }
 }
