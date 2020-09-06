@@ -4,82 +4,88 @@ import { createVNode } from './vnode';
 
 export function diff(parentDom, newVNode, oldVNode) {
   const { type } = newVNode;
-  if (typeof type === 'function') {
-    let isNew;
-    let component;
-    const newProps = newVNode.props;
 
-    if (oldVNode.component) {
-      component = newVNode.component = oldVNode.component;
-    } else {
-      if ('prototype' in type && type.prototype.render) {
-        component = newVNode.component = new type(newVNode.props);
+  // 为了 mount 和 update 的生命周期
+  try {
+    if (typeof type === 'function') {
+      let isNew;
+      let component;
+      const newProps = newVNode.props;
+
+      if (oldVNode.component) {
+        component = newVNode.component = oldVNode.component;
       } else {
-        component = newVNode.component = new Component(newVNode.props);
-        component.render = type;
+        if ('prototype' in type && type.prototype.render) {
+          component = newVNode.component = new type(newVNode.props);
+        } else {
+          component = newVNode.component = new Component(newVNode.props);
+          component.render = type;
+        }
+        isNew = true;
       }
-      isNew = true;
-    }
 
-    const oldState = component.state;
-    const oldProps = component.props;
-    const newState = component.newState === null ? oldState : component.newState;
+      const oldState = component.state;
+      const oldProps = component.props;
+      const newState = component.newState === null ? oldState : component.newState;
 
-    if (isNew) {
-      if (component.componentWillMount != null) {
-        component.componentWillMount();
+      if (isNew) {
+        if (component.componentWillMount != null) {
+          component.componentWillMount();
+        }
+      } else {
+        if (
+          component.shouldComponentUpdate != null &&
+          component.shouldComponentUpdate(newProps, newState) === false
+        ) {
+          component.state = newState;
+          component.props = newProps;
+          component.vnode = newVNode;
+          newVNode.children = oldVNode.children;
+          newVNode.dom = oldVNode.dom;
+          newVNode.parentDom = oldVNode.parentDom;
+          return;
+        }
+        if (component.componentWillUpdate != null) {
+          component.componentWillUpdate(newProps, newState);
+        }
+      }
+
+      newVNode.parentDom = parentDom; // parent.dom 的话 parent 可能是组件，没有 dom
+      component.vnode = newVNode;
+
+      if (options.render) options.render(newVNode);
+
+      component.state = newState;
+      component.props = newProps;
+      const renderResult = component.render(newProps);
+      const newChildren = Array.isArray(renderResult) ? renderResult : [renderResult];
+
+      diffChildren(
+        parentDom,
+        newChildren,
+        newVNode ?? {},
+        oldVNode ?? {},
+      );
+
+      if (isNew) {
+        if (component.componentDidMount != null) {
+          component.componentDidMount();
+        }
+      } else if (component.componentDidUpdate != null) {
+        component.componentDidUpdate(oldProps, oldState);
       }
     } else {
-      if (
-        component.shouldComponentUpdate != null &&
-        component.shouldComponentUpdate(newProps, newState) === false
-      ) {
-        component.state = newState;
-        component.props = newProps;
-        component.vnode = newVNode;
-        newVNode.children = oldVNode.children;
-        newVNode.dom = oldVNode.dom;
-        newVNode.parentDom = oldVNode.parentDom;
-        return;
-      }
-      if (component.componentWillUpdate != null) {
-        component.componentWillUpdate(newProps, newState);
-      }
+      diffElementNodes(
+        parentDom,
+        newVNode ?? {},
+        oldVNode ?? {},
+      );
     }
 
-    newVNode.parentDom = parentDom; // parent.dom 的话 parent 可能是组件，没有 dom
-    component.vnode = newVNode;
-
-    if (options.render) options.render(newVNode);
-
-    component.state = newState;
-    component.props = newProps;
-    const renderResult = component.render(newProps);
-    const newChildren = Array.isArray(renderResult) ? renderResult : [renderResult];
-
-    diffChildren(
-      parentDom,
-      newChildren,
-      newVNode ?? {},
-      oldVNode ?? {},
-    );
-
-    if (isNew) {
-      if (component.componentDidMount != null) {
-        component.componentDidMount();
-      }
-    } else if (component.componentDidUpdate != null) {
-      component.componentDidUpdate(oldProps, oldState);
-    }
-  } else {
-    diffElementNodes(
-      parentDom,
-      newVNode ?? {},
-      oldVNode ?? {},
-    );
+    if (options.diffed) options.diffed(newVNode);
+  } catch (e) {
+    options.catchError(e, newVNode);
   }
-
-  if (options.diffed) options.diffed(newVNode);
 }
 
 function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
@@ -176,7 +182,11 @@ function unmount(vnode, skip) {
   const { component } = vnode;
   if (component != null) {
     if (component.componentWillUnmount) {
-      component.componentWillUnmount();
+      try {  
+        component.componentWillUnmount();
+      } catch (e) {
+        options.catchError(e, vnode)
+      }
     }
   }
 

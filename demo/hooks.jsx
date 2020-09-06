@@ -17,7 +17,10 @@ const Btn = memo(({ onClick }) => {
 
 function Counter() {
   const [count, setCount] = useState(0);
-  const inc = useCallback(() => setCount(c => c + 1), []);
+  const inc = useCallback(() => {
+    setCount(count + 1)
+    setCount(count + 1)
+  }, [count]);
   const dec = useCallback(() => setCount(c => c - 1), []);
 
   useEffect(() => {

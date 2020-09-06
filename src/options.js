@@ -1,1 +1,5 @@
-export const options = {};
+import { catchError } from './catch-error'
+
+export const options = {
+  catchError,
+};

@@ -27,9 +27,14 @@ options.diffed = function invokeEffectOnDiffed(vnode) {
   if (component && component.hooks && component.hooks.pendingEffects.length) {
     const { hooks } = component;
     afterPaint(() => {
-      hooks.pendingEffects.forEach(invokeCleanup);
-      hooks.pendingEffects.forEach(invokeEffect);
-      hooks.pendingEffects = [];
+      try {  
+        hooks.pendingEffects.forEach(invokeCleanup);
+        hooks.pendingEffects.forEach(invokeEffect);
+        hooks.pendingEffects = [];
+      } catch (e) {
+        hooks.pendingEffects = [];
+        options.catchError(e, vnode)
+      }
     });
   }
 };
@@ -40,7 +45,11 @@ options.unmount = function invokeCleanupOnUnmount(vnode) {
 
   const { component } = vnode;
   if (component && component.hooks) {
-    component.hooks.list.forEach(invokeCleanup);
+    try {
+      component.hooks.list.forEach(invokeCleanup);
+    } catch (e) {
+      options.catchError(e, vnode)
+    }
   }
 };
 

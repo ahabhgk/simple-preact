@@ -32,16 +32,18 @@ export class Component {
 function renderComponent(component) {
   const { vnode } = component;
   const { parentDom } = vnode;
+  console.log(vnode)
   diff(parentDom, vnode, { ...vnode });
 }
 
 const rerenderQueue = [];
 function process() {
   rerenderQueue.forEach(renderComponent);
+  console.log(rerenderQueue)
   rerenderQueue.length = 0;
 }
 
-function enqueueRender(component) {
+export function enqueueRender(component) {
   rerenderQueue.push(component);
   Promise.resolve().then(process);
 }
