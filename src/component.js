@@ -36,10 +36,10 @@ function renderComponent(component) {
   diff(parentDom, vnode, { ...vnode });
 }
 
-const rerenderQueue = [];
+let rerenderQueue = [];
 function process() {
+  rerenderQueue = [...new Set(rerenderQueue)]
   rerenderQueue.forEach(renderComponent);
-  console.log(rerenderQueue)
   rerenderQueue.length = 0;
 }
 

@@ -91,31 +91,38 @@ export function diff(parentDom, newVNode, oldVNode) {
 function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
   newVNode.children = [];
   const oldChildren = oldVNode.children ?? [];
-  let i;
-  for (i = 0; i < newChildren.length; i++) {
-    let newChild = newChildren[i];
-    const oldChild = oldChildren[i] ?? {};
 
+  for (let i = 0; i < newChildren.length; i++) {
+    let newChild = newChildren[i];
+    if (newChild == null) continue
     newChild = Array.isArray(newChild)
       ? createVNode(Fragment, null, newChild)
       : newChild;
-
     newVNode.children[i] = newChild;
     newChild.parent = newVNode;
 
-    if (newChild == null) {
-      unmount(oldChild, false);
-    } else {
-      diff(parentDom, newChild, oldChild);
+    let oldChild = {};
+    for (let j = 0; j < oldChildren.length; j++) {
+      if (
+        oldChildren[j] &&
+        oldChildren[j].props.key === newChild.props.key &&
+        oldChildren[j].type === newChild.type
+      ) {
+        oldChild = oldChildren[j]
+        oldChildren[j] = null
+        break
+      }
     }
+
+    diff(parentDom, newChild, oldChild);
 
     if (newChild && newChild.dom !== oldChild.dom && newChild.dom != null) {
       parentDom.appendChild(newChild.dom);
     }
   }
 
-  for (i; i < oldChildren.length; i++) {
-    unmount(oldChildren[i], false);
+  for (let i = 0; i < oldChildren.length; i++) {
+    if (oldChildren[i] != null) unmount(oldChildren[i], false);
   }
 }
 

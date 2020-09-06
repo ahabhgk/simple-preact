@@ -30,27 +30,40 @@ class ErrorBoundary extends Component {
   }
 }
 
-function Counter() {
-  const [count, setCount] = useState(0)
-  const inc = () => setCount(count + 1)
-  useEffect(() => {
-    if (count > 2) {
-      debugger
-      throw new Error('wahaha')
-    }
-  }, [count])
-  return (
-    <div>
-      <div>{count}</div>
-      <button type="button" onClick={inc}> + </button>
-    </div>
-  )
+// function Counter() {
+//   const [count, setCount] = useState(0)
+//   const inc = () => setCount(count + 1)
+//   useEffect(() => {
+//     if (count > 2) {
+//       debugger
+//       throw new Error('wahaha')
+//     }
+//   }, [count])
+//   return (
+//     <div>
+//       <div>{count}</div>
+//       <button type="button" onClick={inc}> + </button>
+//     </div>
+//   )
+// }
+
+class Counter extends Component {
+  componentWillUnmount() {
+    throw new Error('wahaha')
+  }
+  render() {
+    return (
+      <div>Counter</div>
+    )
+  }
 }
 
 function App() {
+  const [show, setShow] = useState(true)
   return (
     <ErrorBoundary>
-      <Counter />
+      <button onClick={() => setShow(!show)}>Show?</button>
+      {show ? <Counter /> : null}
     </ErrorBoundary>
   )
 }
