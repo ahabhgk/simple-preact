@@ -1,7 +1,6 @@
 import React from '../src/index';
-import { useEffect } from '../src/hooks';
 
-const { render, Component, useState } = React;
+const { render, Component, useState, useEffect } = React;
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -22,6 +21,7 @@ class ErrorBoundary extends Component {
 
   render() {
     if (this.state.hasError) {
+      console.log(this)
       // 你可以自定义降级后的 UI 并渲染
       return <h1>Something went wrong.</h1>;
     }

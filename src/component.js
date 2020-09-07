@@ -38,14 +38,15 @@ function renderComponent(component) {
 
 let rerenderQueue = [];
 function process() {
-  rerenderQueue = [...new Set(rerenderQueue)]
-  rerenderQueue.forEach(renderComponent);
-  rerenderQueue.length = 0;
+  const queue = [...new Set(rerenderQueue)] // perf: 去重，防止多次无用的更新
+  rerenderQueue.length = 0; // 先清空在更新，防止更新中加入新的更新之后在清空，导致之后的更新无效
+  queue.forEach(renderComponent);
 }
 
+const defer = Promise.prototype.then.bind(Promise.resolve())
 export function enqueueRender(component) {
   rerenderQueue.push(component);
-  Promise.resolve().then(process);
+  defer(process);
 }
 
 export function Fragment(props) {
