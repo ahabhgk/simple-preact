@@ -152,3 +152,14 @@ function argsChanged(oldArgs, newArgs) {
 export function useContext(context) {
   return context.currentValue
 }
+
+export function useErrorBoundary(cb) {
+  const [error, setError] = useState(null)
+	if (!currentComponent.componentDidCatch) {
+		currentComponent.componentDidCatch = err => {
+			cb(err)
+			setError(err)
+		}
+  }
+  return [error, () => setError(null)]
+}

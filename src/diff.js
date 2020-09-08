@@ -1,6 +1,7 @@
 import { options } from './options';
 import { Component, Fragment } from './component';
 import { createVNode } from './vnode';
+import { Suspense } from './suspense';
 
 export function diff(parentDom, newVNode, oldVNode) {
   const { type } = newVNode;
@@ -42,7 +43,6 @@ export function diff(parentDom, newVNode, oldVNode) {
           component.vnode = newVNode;
           newVNode.children = oldVNode.children;
           newVNode.dom = oldVNode.dom;
-          newVNode.parentDom = oldVNode.parentDom;
           return;
         }
         if (component.componentWillUpdate != null) {
@@ -50,7 +50,7 @@ export function diff(parentDom, newVNode, oldVNode) {
         }
       }
 
-      newVNode.parentDom = parentDom; // parent.dom 的话 parent 可能是组件，没有 dom
+      component.parentDom = parentDom; // parent.dom 的话 parent 可能是组件，没有 dom
       component.vnode = newVNode;
 
       if (options.render) options.render(newVNode);
@@ -84,7 +84,9 @@ export function diff(parentDom, newVNode, oldVNode) {
 
     if (options.diffed) options.diffed(newVNode);
   } catch (e) {
-    options.catchError(e, newVNode);
+    // catchError 和 catchPromise，Suspense 异步请求在 render 时 throw promise
+    // 所以只需要在这里包裹 render 调用即可
+    options.catchError(e, newVNode, oldVNode);
   }
 }
 
@@ -195,6 +197,7 @@ function unmount(vnode, skip) {
         options.catchError(e, vnode)
       }
     }
+    // component.parentDom = null
   }
 
   let dom;
@@ -202,11 +205,12 @@ function unmount(vnode, skip) {
     skip = (dom = vnode.dom) != null;
   }
 
-  for (let i = 0; i < vnode.children.length; i++) {
-    if (vnode.children[i] != null) unmount(vnode.children[i], skip);
+  if (vnode.children) {
+    for (let i = 0; i < vnode.children.length; i++) {
+      if (vnode.children[i] != null) unmount(vnode.children[i], skip);
+    }
   }
 
   vnode.dom = null;
-  vnode.parentDom = null;
   if (dom != null) dom.parentNode.removeChild(dom);
 }

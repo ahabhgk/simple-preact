@@ -23,6 +23,7 @@ export function catchError(error, vnode) {
         error = e
       }
     }
+    vnode = parent
   }
 
   throw error

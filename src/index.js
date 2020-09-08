@@ -1,5 +1,6 @@
 import { render } from './render';
 import { Component, Fragment, memo } from './component';
+import { Suspense } from './suspense'
 import { createVNode } from './vnode';
 import { createContext } from './create-context'
 import {
@@ -16,6 +17,8 @@ const React = {
   render,
   Component,
   Fragment,
+  memo,
+  Suspense,
   createElement: createVNode,
   useState,
   useReducer,
@@ -24,7 +27,6 @@ const React = {
   useCallback,
   useRef,
   useContext,
-  memo,
   createContext,
 };
 

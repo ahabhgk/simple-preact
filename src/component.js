@@ -9,7 +9,8 @@ export class Component {
     this.newState = null;
     this.vnode = null;
     this.hooks = null;
-    // this.context = {};
+    this.parentDom = null
+    // this.renderCallbacks = [];
   }
 
   setState(updater) {
@@ -30,9 +31,7 @@ export class Component {
 }
 
 function renderComponent(component) {
-  const { vnode } = component;
-  const { parentDom } = vnode;
-  console.log(vnode)
+  const { vnode, parentDom } = component;
   diff(parentDom, vnode, { ...vnode });
 }
 
