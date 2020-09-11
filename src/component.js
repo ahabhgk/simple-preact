@@ -63,3 +63,35 @@ export function memo(fc, comparer) {
   }
   return Memoed
 }
+
+export function lazy(loader) {
+  let promise
+  let component
+  let error
+
+  function Lazy(props) {
+    if (!promise) {
+      promise = loader()
+      promise.then(
+        exports => {
+					component = exports.default || exports
+				},
+				e => {
+					error = e
+				}
+      )
+    }
+
+    if (error) {
+      throw error
+    }
+
+    if (!component) {
+      throw promise
+    }
+
+    return createVNode(component, props, props.children)
+  }
+
+  return Lazy
+}

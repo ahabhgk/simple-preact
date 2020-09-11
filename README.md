@@ -9,7 +9,7 @@
 - [ ] Suspense: 😭 confusing with nested suspense, need help...
 - [ ] SuspenseList
 - [x] memo/shouldComponentUpdate
-- [ ] lazy
+- [x] lazy
 - [x] useState
 - [x] useReducer
 - [x] useEffect
@@ -20,8 +20,6 @@
 - [x] createContext
 - [ ] useImperativeHandle
 - [ ] createRef/forwardRef
-- [ ] useTransition
-- [ ] useDeferredValue
 - [x] Component Diff
 - [x] HostNode Diff
 - [x] Key Diff

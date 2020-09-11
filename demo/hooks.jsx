@@ -15,7 +15,7 @@ const Btn = ({ onClick, children }) => {
   return <button type="button" onClick={onClick}>{children}</button>
 }
 
-function Counter() {
+export default function Counter() {
   const [count, setCount] = useState(0);
   const inc = useCallback(() => {
     setCount(count + 1)
