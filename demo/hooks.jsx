@@ -1,7 +1,7 @@
 import React from '../src';
 
 const {
-  useState, useEffect, useCallback, render, memo,
+  useState, useEffect, useCallback, render, memo, createElement: h
 } = React;
 
 function Displayer({ num }) {
@@ -10,10 +10,10 @@ function Displayer({ num }) {
   );
 }
 
-const Btn = memo(({ onClick }) => {
+const Btn = ({ onClick, children }) => {
   console.log('render Btn')
-  return <button type="button" onClick={onClick}>+/-</button>
-})
+  return <button type="button" onClick={onClick}>{children}</button>
+}
 
 function Counter() {
   const [count, setCount] = useState(0);

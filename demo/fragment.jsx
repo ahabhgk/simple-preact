@@ -1,7 +1,7 @@
 import React from '../src';
 import { useState } from '../src/hooks';
 
-const { render } = React;
+const { render, createElement: h } = React;
 
 const list = [
   { name: 'bkk', age: 20 },

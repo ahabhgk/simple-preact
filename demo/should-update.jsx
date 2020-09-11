@@ -1,6 +1,6 @@
 import React from '../src/index';
 
-const { render, Component } = React;
+const { render, Component, createElement: h } = React;
 
 class ClassDisplayer extends Component {
   shouldComponentUpdate(newProps, newState) {
@@ -38,8 +38,8 @@ class Counter extends Component {
     return (
       <div>
         <ClassDisplayer>{this.state.count}</ClassDisplayer>
-        <button type="button" onClick={this.inc}></button>
-        <button type="button" onClick={this.dec}></button>
+        <button type="button" onClick={this.inc}> + </button>
+        <button type="button" onClick={this.dec}> - </button>
       </div>
     );
   }

@@ -24,9 +24,7 @@
 - [ ] useDeferredValue
 - [x] Component Diff
 - [x] HostNode Diff
-- [ ] Key Diff
+- [x] Key Diff
 - [ ] Children
 
 ## Tips
-
-Suspense: 

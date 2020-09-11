@@ -1,6 +1,6 @@
 import React from '../src/index';
 
-const { render, Component } = React;
+const { render, Component, createElement: h } = React;
 
 class Displayer extends Component {
   componentWillMount() {

@@ -1,6 +1,6 @@
 import React from '../src/index';
 
-const { render, Component, Suspense } = React;
+const { render, Component, Suspense, createElement: h } = React;
 
 function fetchProfileData() {
   let userPromise = fetchUser();

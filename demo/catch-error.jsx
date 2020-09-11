@@ -1,6 +1,6 @@
 import React from '../src/index';
 
-const { render, Component, useState, useEffect } = React;
+const { render, Component, useState, useEffect, createElement: h } = React;
 
 class ErrorBoundary extends Component {
   constructor(props) {

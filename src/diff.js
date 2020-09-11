@@ -94,6 +94,7 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
   newVNode.children = [];
   const oldChildren = oldVNode.children ?? [];
 
+  let lastIndex = 0
   for (let i = 0; i < newChildren.length; i++) {
     let newChild = newChildren[i];
     if (newChild == null) continue
@@ -103,23 +104,40 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
     newVNode.children[i] = newChild;
     newChild.parent = newVNode;
 
-    let oldChild = {};
+    let oldChild = null;
+    let find = false
     for (let j = 0; j < oldChildren.length; j++) {
       if (
         oldChildren[j] &&
         oldChildren[j].props.key === newChild.props.key &&
         oldChildren[j].type === newChild.type
       ) {
+        find = true
         oldChild = oldChildren[j]
         oldChildren[j] = null
+
+        diff(parentDom, newChild, oldChild);
+
+        if (j < lastIndex) { // 移动
+          const refNode = newChildren[i - 1].dom.nextSibling
+          parentDom.insertBefore(oldChild.dom, refNode)
+        } else {
+          lastIndex = j
+        }
         break
       }
     }
 
-    diff(parentDom, newChild, oldChild);
-
-    if (newChild && newChild.dom !== oldChild.dom && newChild.dom != null) {
-      parentDom.appendChild(newChild.dom);
+    if (!find) {
+      diff(parentDom, newChild, {}) // mount
+      if (oldChildren.langth) {
+        const refNode = i - 1 < 0
+          ? oldChildren[0].dom
+          : newChildren[i - 1].dom.nextSibling
+        newChild.dom && parentDom.insertBefore(newChild.dom, refNode)
+      } else {
+        newChild.dom && parentDom.appendChild(newChild.dom)
+      }
     }
   }
 
@@ -197,7 +215,7 @@ function unmount(vnode, skip) {
         options.catchError(e, vnode)
       }
     }
-    // component.parentDom = null
+    component.parentDom = null
   }
 
   let dom;

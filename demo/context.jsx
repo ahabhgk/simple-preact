@@ -1,14 +1,14 @@
 import React from '../src';
 
 const {
-  useState, useContext, createContext, render,
+  useState, useContext, createContext, render, createElement: h
 } = React;
 
 const Count = createContext(0)
 
 function Displayer() {
   const count = useContext(Count)
-  return <div>{count}</div>
+  return <div className="displayer">{count}</div>
 }
 
 function App() {
