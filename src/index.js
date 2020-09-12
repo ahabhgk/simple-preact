@@ -1,5 +1,5 @@
 import { render } from './render';
-import { Component, Fragment, memo, lazy, PureComponent } from './component';
+import { Component, Fragment, memo, lazy, PureComponent, Portal } from './component';
 import { Suspense } from './suspense'
 import { createVNode } from './vnode';
 import { createContext } from './create-context'
@@ -21,6 +21,7 @@ const React = {
   PureComponent,
   lazy,
   Suspense,
+  Portal,
   createElement: createVNode,
   useState,
   useReducer,

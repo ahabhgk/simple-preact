@@ -1,6 +1,7 @@
-import { diff } from './diff';
+import { diff, unmount, diffChildren } from './diff';
 import { shallowCompare } from './helpers';
 import { createVNode } from './vnode';
+import { render } from './render';
 
 export class Component {
   constructor(props) {
@@ -104,4 +105,41 @@ export function lazy(loader) {
   }
 
   return Lazy
+}
+
+export function Portal({ children, to }) {
+  const unmountPortal = () => {
+    this.parentDom.removeChild(this.placeholder)
+    unmount(this.children)
+    this.hasMounted = false
+  }
+
+  this.componentWillUnmount = unmountPortal
+
+  if (this.target && this.target !== to) {
+    unmountPortal()
+  }
+
+  debugger
+  if (children) {
+    if (!this.hasMounted) {
+      this.placeholder = document.createTextNode('')
+      this.parentDom.appendChild(this.placeholder)
+      this.hasMounted = true
+      this.target = to
+      render(children, to)
+      this.placeholder.appendChild(children.dom)
+    } else {
+      diff(
+        to,
+        children,
+        this.children,
+      )
+    }
+    this.children = children
+  } else if (this.hasMounted) {
+    unmountPortal()
+  }
+
+  return null
 }

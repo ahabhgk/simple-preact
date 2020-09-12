@@ -36,9 +36,7 @@ export function createVNode(type, props, ...children) {
 export function createTextVNode(value) {
   return {
     type: 'TEXT',
-    props: {
-      nodeValue: value,
-    },
+    props: value,
     dom: null,
     parent: null,
   };
