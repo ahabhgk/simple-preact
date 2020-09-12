@@ -8,7 +8,9 @@
 - [x] ErrorBoundary
 - [ ] Suspense: 😭 confusing with nested suspense, need help...
 - [ ] SuspenseList
+- [ ] Portal
 - [x] memo/shouldComponentUpdate
+- [x] PureComponent
 - [x] lazy
 - [x] useState
 - [x] useReducer
@@ -23,6 +25,8 @@
 - [x] Component Diff
 - [x] HostNode Diff
 - [x] Key Diff
-- [ ] Children
+- [x] Children
+- [x] SVG
+- [x] Default Props
 
 ## Tips

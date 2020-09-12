@@ -1,5 +1,5 @@
 import { render } from './render';
-import { Component, Fragment, memo, lazy } from './component';
+import { Component, Fragment, memo, lazy, PureComponent } from './component';
 import { Suspense } from './suspense'
 import { createVNode } from './vnode';
 import { createContext } from './create-context'
@@ -18,6 +18,7 @@ const React = {
   Component,
   Fragment,
   memo,
+  PureComponent,
   lazy,
   Suspense,
   createElement: createVNode,

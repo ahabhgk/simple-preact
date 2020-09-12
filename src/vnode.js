@@ -1,12 +1,31 @@
 export function createVNode(type, props, ...children) {
+  let normalizedProps = {}
+  for (let i in props) {
+    if (i !== 'key' && i !== 'ref') normalizedProps[i] = props[i]
+  }
+  
+  if (children.length === 0) {
+    children = null
+  } else if (children.length === 1) {
+    children = children[0]
+  }
+  if (children != null) {
+    normalizedProps.children = children
+  }
+
+  if (typeof type === 'function' && type.defaultProps != null) {
+    for (let i in type.defaultProps) {
+      if (normalizedProps[i] === undefined) {
+        normalizedProps[i] = type.defaultProps[i]
+      }
+    }
+  }
+
   return {
     type,
-    props: {
-      ...props,
-      children: children.length === 1
-        ? typeof children[0] === 'object' ? children[0] : createTextVNode(children[0])
-        : children.map((child) => (typeof child === 'object' ? child : createTextVNode(child))),
-    },
+    props: normalizedProps,
+    key: props?.key ?? null,
+    ref: props?.ref ?? null,
     component: null,
     dom: null,
     parent: null,
@@ -14,12 +33,11 @@ export function createVNode(type, props, ...children) {
   };
 }
 
-function createTextVNode(value) {
+export function createTextVNode(value) {
   return {
     type: 'TEXT',
     props: {
       nodeValue: value,
-      children: [],
     },
     dom: null,
     parent: null,

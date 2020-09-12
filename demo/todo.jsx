@@ -4,7 +4,7 @@ const { Component, render, createElement: h } = React;
 
 let counter = 0;
 
-export default class TodoList extends Component {
+class TodoList extends Component {
 	state = { todos: [], text: '' };
 
 	setText = e => {

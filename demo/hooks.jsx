@@ -10,12 +10,12 @@ function Displayer({ num }) {
   );
 }
 
-const Btn = ({ onClick, children }) => {
-  console.log('render Btn')
-  return <button type="button" onClick={onClick}>{children}</button>
-}
+const Btn = memo((props) => {
+  console.log('render Btn', props)
+  return <button type="button" onClick={props.onClick}>{props.children}</button>
+})
 
-export default function Counter() {
+function Counter() {
   const [count, setCount] = useState(0);
   const inc = useCallback(() => {
     setCount(count + 1)

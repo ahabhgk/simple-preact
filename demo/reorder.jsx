@@ -17,7 +17,7 @@ function random() {
 	return Math.random() < 0.5 ? 1 : -1;
 }
 
-export default class Reorder extends Component {
+class Reorder extends Component {
 	state = {
 		items: createItems(),
 		count: 1,

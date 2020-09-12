@@ -1,7 +1,6 @@
 import React from '../src';
-import { useState } from '../src/hooks';
 
-const { render, createElement: h } = React;
+const { render, createElement: h, useState } = React;
 
 const list = [
   { name: 'bkk', age: 20 },

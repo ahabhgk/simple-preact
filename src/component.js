@@ -64,6 +64,16 @@ export function memo(fc, comparer) {
   return Memoed
 }
 
+export class PureComponent extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    return shallowCompare(this.props, nextProps) || shallowCompare(this.state, nextState)
+  }
+
+  render() {
+    return this.props.children
+  }
+}
+
 export function lazy(loader) {
   let promise
   let component

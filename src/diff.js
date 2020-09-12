@@ -1,9 +1,9 @@
 import { options } from './options';
 import { Component, Fragment } from './component';
-import { createVNode } from './vnode';
+import { createVNode, createTextVNode } from './vnode';
 import { Suspense } from './suspense';
 
-export function diff(parentDom, newVNode, oldVNode) {
+export function diff(parentDom, newVNode, oldVNode, isSVG = false) {
   const { type } = newVNode;
 
   // 为了 mount 和 update 的生命周期
@@ -65,6 +65,7 @@ export function diff(parentDom, newVNode, oldVNode) {
         newChildren,
         newVNode ?? {},
         oldVNode ?? {},
+        isSVG
       );
 
       if (isNew) {
@@ -79,6 +80,7 @@ export function diff(parentDom, newVNode, oldVNode) {
         parentDom,
         newVNode ?? {},
         oldVNode ?? {},
+        isSVG,
       );
     }
 
@@ -90,7 +92,7 @@ export function diff(parentDom, newVNode, oldVNode) {
   }
 }
 
-function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
+function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG = false) {
   newVNode.children = [];
   const oldChildren = oldVNode.children ?? [];
 
@@ -100,7 +102,9 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
     if (newChild == null) continue
     newChild = Array.isArray(newChild)
       ? createVNode(Fragment, null, newChild)
-      : newChild;
+      : typeof newChild === 'string' || typeof newChild === 'number'
+        ? createTextVNode(newChild)
+        : newChild
     newVNode.children[i] = newChild;
     newChild.parent = newVNode;
 
@@ -109,14 +113,14 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
     for (let j = 0; j < oldChildren.length; j++) {
       if (
         oldChildren[j] &&
-        oldChildren[j].props.key === newChild.props.key &&
+        oldChildren[j].key === newChild.key &&
         oldChildren[j].type === newChild.type
       ) {
         find = true
         oldChild = oldChildren[j]
         oldChildren[j] = null
 
-        diff(parentDom, newChild, oldChild);
+        diff(parentDom, newChild, oldChild, isSVG);
 
         if (j < lastIndex) { // 移动
           const refNode = newChildren[i - 1].dom.nextSibling
@@ -129,7 +133,7 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
     }
 
     if (!find) {
-      diff(parentDom, newChild, {}) // mount
+      diff(parentDom, newChild, {}, isSVG) // mount
       if (oldChildren.langth) {
         const refNode = i - 1 < 0
           ? oldChildren[0].dom
@@ -146,7 +150,8 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode) {
   }
 }
 
-function diffElementNodes(parentDom, newVNode, oldVNode) {
+function diffElementNodes(parentDom, newVNode, oldVNode, isSVG) {
+  isSVG = newVNode.type === 'svg' || isSVG
   const oldProps = oldVNode.props ?? {};
   const newProps = newVNode.props ?? {};
   let { dom } = oldVNode;
@@ -155,32 +160,36 @@ function diffElementNodes(parentDom, newVNode, oldVNode) {
     if (newVNode.type == 'TEXT') {
       dom = document.createTextNode('');
     } else {
-      dom = document.createElement(newVNode.type);
+      dom = isSVG
+        ? document.createElementNS('http://www.w3.org/2000/svg', newVNode.type)
+        : document.createElement(newVNode.type)
     }
   }
 
   const newChildren = Array.isArray(newProps.children) ? newProps.children : [newProps.children];
-  diffDOMProps(dom, newProps, oldProps);
-  diffChildren(dom, newChildren, newVNode, oldVNode);
+  diffDOMProps(dom, newProps, oldProps, isSVG);
+  diffChildren(dom, newChildren, newVNode, oldVNode, isSVG);
   newVNode.dom = dom;
 }
 
-function diffDOMProps(dom, newProps, oldProps) {
+function diffDOMProps(dom, newProps, oldProps, isSVG = false) {
   // remove old props
   Object.keys(oldProps).forEach((propName) => {
     if (propName !== 'children' && propName !== 'key' && !(propName in newProps)) {
-      setProperty(dom, propName, null, oldProps[propName]);
+      setProperty(dom, propName, null, oldProps[propName], isSVG);
     }
   });
   // update old props
   Object.keys(newProps).forEach((propName) => {
     if (propName !== 'children' && propName !== 'key' && oldProps[propName] !== newProps[propName]) {
-      setProperty(dom, propName, newProps[propName], oldProps[propName]);
+      setProperty(dom, propName, newProps[propName], oldProps[propName], isSVG);
     }
   });
 }
 
-function setProperty(dom, propName, newValue, oldValue) {
+const domPropsRE = /\[A-Z]|^(?:value|checked|selected|muted)$/
+
+function setProperty(dom, propName, newValue, oldValue, isSVG = false) {
   if (propName[0] === 'o' && propName[1] === 'n') {
     const eventType = propName.toLowerCase().slice(2);
 
@@ -195,7 +204,17 @@ function setProperty(dom, propName, newValue, oldValue) {
       dom.removeEventListener(eventType, eventProxy);
     }
   } else {
-    dom[propName] = newValue === null ? '' : newValue;
+    if (isSVG && propName.startsWith('xlink:')) {
+      if (newValue == null) {
+        dom.removeAttributeNS('http://www.w3.org/1999/xlink', propName.slice(6))
+      } else {
+        dom.setAttributeNS('http://www.w3.org/1999/xlink', propName.slice(6))
+      }
+    } else {
+      newValue == null || newValue === false
+        ? dom.removeAttribute(propName)
+        : dom.setAttribute(propName, newValue)
+    }
   }
 }
 
