@@ -32,7 +32,7 @@ class Parent extends Component {
           is not a child of the div
           with the onClick handler.
         </p>
-        <Portal to={document.querySelector('#modal-root')}>
+        <Portal to="#modal-root">
           {this.state.clicks % 2 ? <Child onClick={(e) => console.log(e)} /> : null}
         </Portal>
       </div>
@@ -41,11 +41,9 @@ class Parent extends Component {
 }
 
 function Child({ onClick }) {
-  // 这个按钮的点击事件会冒泡到父元素
-  // 因为这里没有定义 'onClick' 属性
   return (
-    <div className="modal">
-      <button onClick={onClick}>Click</button>
+    <div className="modal" onClick={onClick}>
+      Click
     </div>
   );
 }

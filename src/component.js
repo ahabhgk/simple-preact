@@ -108,27 +108,27 @@ export function lazy(loader) {
 }
 
 export function Portal({ children, to }) {
-  const unmountPortal = () => {
+  to = typeof to === 'string' ? document.querySelector(to) : to
+
+  const cleanup = () => {
     this.parentDom.removeChild(this.placeholder)
     unmount(this.children)
     this.hasMounted = false
   }
 
-  this.componentWillUnmount = unmountPortal
+  this.componentWillUnmount = cleanup
 
   if (this.target && this.target !== to) {
-    unmountPortal()
+    cleanup()
   }
 
-  debugger
   if (children) {
     if (!this.hasMounted) {
-      this.placeholder = document.createTextNode('')
+      this.placeholder = document.createComment('Portal')
       this.parentDom.appendChild(this.placeholder)
       this.hasMounted = true
       this.target = to
       render(children, to)
-      this.placeholder.appendChild(children.dom)
     } else {
       diff(
         to,
@@ -138,7 +138,7 @@ export function Portal({ children, to }) {
     }
     this.children = children
   } else if (this.hasMounted) {
-    unmountPortal()
+    cleanup()
   }
 
   return null

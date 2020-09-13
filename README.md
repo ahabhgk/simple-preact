@@ -8,7 +8,7 @@
 - [x] ErrorBoundary
 - [ ] Suspense: 😭 confusing with nested suspense, need help...
 - [ ] SuspenseList
-- [ ] Portal
+- [x] Portal
 - [x] memo/shouldComponentUpdate
 - [x] PureComponent
 - [x] lazy
