@@ -3,6 +3,7 @@
 - [ ] Types
 - [x] Component
 - [x] Component Lifecycle
+- [x] Component forceUpdate
 - [x] Function Component
 - [x] Fragment
 - [x] ErrorBoundary
@@ -15,13 +16,17 @@
 - [x] useState
 - [x] useReducer
 - [x] useEffect
+- [x] useLayoutEffect
 - [x] useMemo
 - [x] useCallback
 - [x] useRef
 - [x] useContext
+- [x] useErrorBoundary
+- [x] useImperativeHandle
+- [x] forwardRef
+- [x] createRef
+- [x] Ref
 - [x] createContext
-- [ ] useImperativeHandle
-- [ ] createRef/forwardRef
 - [x] Component Diff
 - [x] HostNode Diff
 - [x] Key Diff

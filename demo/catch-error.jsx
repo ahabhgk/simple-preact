@@ -1,34 +1,46 @@
 import React from '../src/index';
 
-const { render, Component, useState, useEffect, createElement: h } = React;
+const { render, Component, useState, useEffect, createElement: h, useErrorBoundary } = React;
 
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
+function ErrorBoundary({ children }) {
+  const [error, reset] = useErrorBoundary()
 
-  static getDerivedStateFromError(error) {
-    console.log("getDerivedStateFromError", error)
-    // 更新 state 使下一次渲染能够显示降级后的 UI
-    return { hasError: true };
-  }
-
-  componentDidCatch(error) {
-    // 你同样可以将错误日志上报给服务器
-    console.log("componentDidCatch: ", error);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      console.log(this)
-      // 你可以自定义降级后的 UI 并渲染
-      return <h1>Something went wrong.</h1>;
-    }
-
-    return this.props.children; 
-  }
+  if (error) return (
+    <div>
+      <h1>Something went wrong.</h1>
+      <button onClick={() => reset()}>reset</button>
+    </div>
+  )
+  return children
 }
+
+// class ErrorBoundary extends Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = { hasError: false };
+//   }
+
+//   static getDerivedStateFromError(error) {
+//     console.log("getDerivedStateFromError", error)
+//     // 更新 state 使下一次渲染能够显示降级后的 UI
+//     return { hasError: true };
+//   }
+
+//   componentDidCatch(error) {
+//     // 你同样可以将错误日志上报给服务器
+//     console.log("componentDidCatch: ", error);
+//   }
+
+//   render() {
+//     if (this.state.hasError) {
+//       console.log(this)
+//       // 你可以自定义降级后的 UI 并渲染
+//       return <h1>Something went wrong.</h1>;
+//     }
+
+//     return this.props.children; 
+//   }
+// }
 
 // function Counter() {
 //   const [count, setCount] = useState(0)

@@ -81,7 +81,7 @@ export function useReducer(reducer, initialState, init) {
         const nextState = reducer(hookState.value[0], action);
         if (hookState.value[0] !== nextState) {
           hookState.value = [nextState, hookState.value[1]];
-          hookState.component.setState({});
+          hookState.component.forceUpdate();
         }
       },
     ];
@@ -157,9 +157,48 @@ export function useErrorBoundary(cb) {
   const [error, setError] = useState(null)
 	if (!currentComponent.componentDidCatch) {
 		currentComponent.componentDidCatch = err => {
-			cb(err)
+			if (typeof cb === 'function') cb(err)
 			setError(err)
 		}
   }
   return [error, () => setError(null)]
+}
+
+// LayoutEffect 在所有的 DOM 变更之后同步调用
+// 在浏览器执行绘制之前，useLayoutEffect 内部的更新计划将被同步刷新
+const originalCommit = options.commit
+options.commit = function invokeLayoutEffect(commitQueue, vnode) {
+  commitQueue.forEach(component => {
+    try {  
+      component.renderCallbacks.forEach(invokeCleanup)
+      component.renderCallbacks = component.renderCallbacks.filter(cb =>
+        cb.effect ? invokeEffect(cb) : true
+      )
+    } catch (e) {
+      commitQueue.forEach(component => component.renderCallbacks = [])
+      commitQueue = []
+      options.catchError(e, component.vnode)
+    }
+  })
+
+  if (originalCommit) originalCommit(commitQueue, vnode)
+}
+
+export function useLayoutEffect(cb, args) {
+  const hookState = getHookState(currentIndex++)
+  if (argsChanged(hookState.args, args)) {
+    hookState.effect = cb
+    hookState.args = args
+    currentComponent.renderCallbacks.push(hookState)
+  }
+}
+
+export function useImperativeHandle(ref, createHandle, args) {
+  useLayoutEffect(
+    () => {
+			if (typeof ref == 'function') ref(createHandle());
+			else if (ref) ref.current = createHandle();
+    },
+    args,
+  )
 }

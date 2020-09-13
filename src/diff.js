@@ -43,6 +43,9 @@ export function diff(parentDom, newVNode, oldVNode, isSVG = false) {
           component.vnode = newVNode;
           newVNode.children = oldVNode.children;
           newVNode.dom = oldVNode.dom;
+          if (component.renderCallbacks.length) {
+            commitQueue.push(component)
+          }
           return;
         }
         if (component.componentWillUpdate != null) {
@@ -68,6 +71,10 @@ export function diff(parentDom, newVNode, oldVNode, isSVG = false) {
         isSVG
       );
 
+      if (component.renderCallbacks.length) {
+        commitQueue.push(component)
+      }
+
       if (isNew) {
         if (component.componentDidMount != null) {
           component.componentDidMount();
@@ -92,9 +99,10 @@ export function diff(parentDom, newVNode, oldVNode, isSVG = false) {
   }
 }
 
-export function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG = false) {
+function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG = false) {
   newVNode.children = [];
   const oldChildren = oldVNode.children ?? [];
+  const refs = [] // Component refs aren't re-invoked after each render
 
   let lastIndex = 0
   for (let i = 0; i < newChildren.length; i++) {
@@ -108,7 +116,7 @@ export function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG =
     newVNode.children[i] = newChild;
     newChild.parent = newVNode;
 
-    let oldChild = null;
+    let oldChild = {};
     let find = false
     for (let j = 0; j < oldChildren.length; j++) {
       if (
@@ -143,10 +151,21 @@ export function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG =
         newChild.dom && parentDom.appendChild(newChild.dom)
       }
     }
+
+    if (newChild.ref && oldChild.ref != newChild.ref) { // ref 更新了
+      if (oldChild.ref) refs.push([oldChild.ref, null, newChild]) // 清旧的 ref
+      refs.push([newChild.ref, newChild.component ?? newChild.dom, newChild]) // 添加新的 ref
+    }
   }
 
   for (let i = 0; i < oldChildren.length; i++) {
     if (oldChildren[i] != null) unmount(oldChildren[i], false);
+  }
+
+  // Refs need to happen after unmount (so that `null` is passed in first)
+  // isShow ? <div ref={r} /> : <span ref={r} /> r 更新了，原来的节点 unmount 了，需要先清为 null 再更新
+  for (let i = refs.length - 1; i >= 0; i--) {
+    applyRef(...refs[i])
   }
 }
 
@@ -234,6 +253,11 @@ function eventProxy(dom, e) {
 export function unmount(vnode, skip) {
   if (options.unmount) options.unmount(vnode);
 
+  const { ref } = vnode
+	if (ref) {
+		if (ref.current === vnode.dom) applyRef(ref, null, vnode);
+	}
+
   const { component } = vnode;
   if (component != null) {
     if (component.componentWillUnmount) {
@@ -259,4 +283,36 @@ export function unmount(vnode, skip) {
 
   vnode.dom = null;
   if (dom != null) dom.parentNode.removeChild(dom);
+}
+
+function applyRef(ref, value, vnode) {
+	try {
+		if (typeof ref == 'function') ref(value);
+		else ref.current = value;
+	} catch (e) {
+		options.catchError(e, vnode);
+	}
+}
+
+export const commitQueue = []
+
+export function commit(commitQueue, vnode) {
+  if (options.commit) options.commit(commitQueue, vnode)
+
+  const queue = commitQueue
+  commitQueue = []
+  queue.forEach(component => {
+    try {
+      const cbs = component.renderCallbacks
+      component.renderCallbacks = []
+      cbs.forEach(cb => cb.call(component))
+    } catch (e) {
+      options.catchError(e, component.vnode)
+    }
+  })
+}
+
+export function render(vnode, parentDom) {
+  diff(parentDom, vnode, {});
+  commit(commitQueue, vnode)
 }

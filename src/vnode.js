@@ -1,3 +1,5 @@
+import { memo } from "./component";
+
 export function createVNode(type, props, ...children) {
   let normalizedProps = {}
   for (let i in props) {
@@ -40,4 +42,24 @@ export function createTextVNode(value) {
     dom: null,
     parent: null,
   };
+}
+
+export function createContext(initialValue) {
+  const context = {
+    currentValue: initialValue,
+    Consumer({ children }) {
+      return children(context.currentValue);
+    },
+    Provider: memo(function Provider({ value, children }) {
+      if (value !== context.currentValue) {
+        context.currentValue = value
+      }
+      return children
+    }),
+  };
+  return context
+}
+
+export function createRef() {
+  return { current: null }
 }

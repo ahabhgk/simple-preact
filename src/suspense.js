@@ -49,7 +49,7 @@ export class Suspense extends Component {
       //   const child = this.suspenders.pop()
       //   child.setState(child.newState)
       // }
-      child.setState(child.newState)
+      child.forceUpdate()
     }
     promise.then(onResolved)
   }

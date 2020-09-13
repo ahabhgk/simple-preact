@@ -1,7 +1,8 @@
-import { diff, unmount, diffChildren } from './diff';
+import { diff, unmount, commitQueue, commit } from './diff';
 import { shallowCompare } from './helpers';
 import { createVNode } from './vnode';
-import { render } from './render';
+import { render } from './diff';
+import { options } from './options';
 
 export class Component {
   constructor(props) {
@@ -11,11 +12,10 @@ export class Component {
     this.vnode = null;
     this.hooks = null;
     this.parentDom = null
-    // this.renderCallbacks = [];
+    this.renderCallbacks = [];
   }
 
-  setState(updater) {
-    // debugger
+  setState(updater, cb) {
     if (this.newState === null || this.newState === this.state) {
       this.newState = { ...this.state };
     }
@@ -26,7 +26,15 @@ export class Component {
       this.newState = Object.assign(this.newState, updater);
     }
     if (this.vnode) {
+      if (cb) this.renderCallbacks.push(cb)
       enqueueRender(this);
+    }
+  }
+
+  forceUpdate(cb) {
+    if (this.vnode) {
+      if (cb) this.renderCallbacks.push(cb)
+      enqueueRender(this)
     }
   }
 }
@@ -34,6 +42,7 @@ export class Component {
 function renderComponent(component) {
   const { vnode, parentDom } = component;
   diff(parentDom, vnode, { ...vnode });
+  commit(commitQueue, vnode)
 }
 
 let rerenderQueue = [];
@@ -142,4 +151,13 @@ export function Portal({ children, to }) {
   }
 
   return null
+}
+
+export function forwardRef(fc) {
+  function Forwarded(props) {
+    console.log(props)
+    const { vnode } = this
+    return fc(props, vnode.ref)
+  }
+  return Forwarded
 }
