@@ -152,7 +152,8 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG = false)
       }
     }
 
-    if (newChild.ref && oldChild.ref != newChild.ref) { // ref 更新了
+    // ref 更新了：<div ref={ref1} /> => <div ref={ref2} />
+    if (newChild.ref && oldChild.ref != newChild.ref) {
       if (oldChild.ref) refs.push([oldChild.ref, null, newChild]) // 清旧的 ref
       refs.push([newChild.ref, newChild.component ?? newChild.dom, newChild]) // 添加新的 ref
     }
@@ -164,8 +165,8 @@ function diffChildren(parentDom, newChildren, newVNode, oldVNode, isSVG = false)
 
   // Refs need to happen after unmount (so that `null` is passed in first)
   // isShow ? <div ref={r} /> : <span ref={r} /> r 更新了，原来的节点 unmount 了，需要先清为 null 再更新
-  for (let i = refs.length - 1; i >= 0; i--) {
-    applyRef(...refs[i])
+  for (let refArg of refs) {
+    applyRef(...refArg)
   }
 }
 
