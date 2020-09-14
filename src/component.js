@@ -155,7 +155,6 @@ export function Portal({ children, to }) {
 
 export function forwardRef(fc) {
   function Forwarded(props) {
-    console.log(props)
     const { vnode } = this
     return fc(props, vnode.ref)
   }
