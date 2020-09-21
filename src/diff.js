@@ -227,7 +227,7 @@ function setProperty(dom, propName, newValue, oldValue, isSVG = false) {
 
     if (newValue) {
       if (!oldValue) {
-        dom.addEventListener(eventType, (e) => eventProxy(dom, e));
+        dom.addEventListener(eventType, eventProxy);
       }
     } else {
       dom.removeEventListener(eventType, eventProxy);
@@ -247,8 +247,8 @@ function setProperty(dom, propName, newValue, oldValue, isSVG = false) {
   }
 }
 
-function eventProxy(dom, e) {
-  dom.listeners[e.type](options.event ? options.event(e) : e);
+function eventProxy(e) {
+  this.listeners[e.type](options.event ? options.event(e) : e);
 }
 
 export function unmount(vnode, skip) {
