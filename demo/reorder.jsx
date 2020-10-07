@@ -17,6 +17,10 @@ function random() {
 	return Math.random() < 0.5 ? 1 : -1;
 }
 
+function Li({ children }) {
+  return <li>{children}</li>
+}
+
 class Reorder extends Component {
 	state = {
 		items: createItems(),
@@ -67,7 +71,7 @@ class Reorder extends Component {
 	};
 
 	renderItem = item => (
-		<li key={this.state.useKeys ? item.key : null}>{item.label}</li>
+		<Li key={this.state.useKeys ? item.key : null}>{item.label}</Li>
 	);
 
 	render() {

@@ -268,7 +268,7 @@ export function unmount(vnode, skip) {
         options.catchError(e, vnode)
       }
     }
-    component.parentDom = null
+    // component.parentDom = null
   }
 
   let dom;

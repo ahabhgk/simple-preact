@@ -10,9 +10,10 @@ options.catchError = function catchPromise(error, newVNode, oldVNode) {
       const { parent } = vnode
       const { component } = parent
       if (component && component.childrenDidSuspend) {
-        if (vnode.dom == null) {
-          vnode.dom = oldVNode.dom
-          vnode.children = oldVNode.children
+        if (newVNode.dom == null) {
+          newVNode.dom = oldVNode.dom
+          debugger
+          newVNode.children = oldVNode.children
         }
         return component.childrenDidSuspend(error, newVNode.component)
       }
@@ -28,7 +29,6 @@ export class Suspense extends Component {
   suspenders = []
   constructor(props) {
     super(props)
-    // this.vnode.component = null
   }
 
   childrenDidSuspend(promise, child) {
@@ -38,7 +38,9 @@ export class Suspense extends Component {
 
     // const originalChildWillUnmount = child.componentWillUnmount;
     // child.componentWillUnmount = () => {
+    //   debugger
     //   this.vnode.component = null
+    //   console.log('reset component', this.vnode)
     //   if (originalChildWillUnmount) originalChildWillUnmount()
     // }
 
@@ -55,6 +57,7 @@ export class Suspense extends Component {
   }
 
   render() {
+    // this.vnode.component = null
     return this.state.resolved ? this.props.children : this.props.fallback
   }
 }

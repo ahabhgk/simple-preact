@@ -1,6 +1,6 @@
 import React from '../src/index';
 
-const { render, Component, Suspense, createElement: h } = React;
+const { render, Component, Suspense, createElement: h, Fragment } = React;
 
 function fetchProfileData() {
   let userPromise = fetchUser();
@@ -87,26 +87,28 @@ function ProfilePage() {
     <Suspense
       fallback={<h1>Loading profile...</h1>}
     >
-      <ProfileDetails />
-      <Suspense
-        fallback={<h1>Loading posts...</h1>}
-      >
-        <ProfileTimeline />
-      </Suspense>
+      <div>
+        <ProfileDetails />
+        <Suspense
+          fallback={<h1>Loading posts...</h1>}
+        >
+          <ProfileTimeline />
+        </Suspense>
+      </div>
     </Suspense>
   );
 }
 
 function ProfileDetails() {
   // Try to read user info, although it might not have loaded yet
-  debugger
+  // debugger
   const user = resource.user.read();
   return <h1>{user.name}</h1>;
 }
 
 function ProfileTimeline() {
   // Try to read posts, although they might not have loaded yet
-  debugger
+  // debugger
   const posts = resource.posts.read();
   return (
     <ul>
