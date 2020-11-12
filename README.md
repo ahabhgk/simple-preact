@@ -35,3 +35,5 @@
 - [x] Default Props
 
 ## Tips
+
+Preact 与 React 有很大的不同，React 原理推荐《[React 技术揭秘](https://react.iamkasong.com/)》
