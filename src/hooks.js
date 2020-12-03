@@ -91,7 +91,7 @@ export function useReducer(reducer, initialState, init) {
 
 export function useState(initialState) {
   return useReducer(
-    (arg, f) => (typeof f === 'function' ? f(arg) : f),
+    (state, action) => (typeof action === 'function' ? action(state) : action),
     typeof initialState === 'function' ? initialState() : initialState,
   );
 }
